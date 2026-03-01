@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The Cloister of Letters</title>
+
+  <!-- Old-world type + readable body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&family=Special+Elite&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --ink:#1b1a18;
+      --ink2:#2e2a25;
+      --wax:#7b1f1f;
+      --wax2:#a22a2a;
+      --paper:#efe2c6;
+      --paper2:#e7d5b0;
+      --gold:#c6a25a;
+      --moss:#2f4a3a;
+      --night:#06070b;
+      --fire:#d6ff6a;
+      --fire2:#7dffcf;
+      --shadow: 0 20px 60px rgba(0,0,0,.35);
+      --softshadow: 0 10px 30px rgba(0,0,0,.25);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 700px at 15% 15%, rgba(214,255,106,.18), transparent 55%),
+        radial-gradient(900px 650px at 85% 25%, rgba(125,255,207,.14), transparent 60%),
+        radial-gradient(1000px 800px at 55% 80%, rgba(198,162,90,.12), transparent 58%),
+        linear-gradient(180deg, #0b0d14 0%, #05060a 55%, #020306 100%);
+      overflow-x:hidden;
+      font-family:"IM Fell English", serif;
+    }
+
+    /* Maximalist “ornament” overlay */
+    .ornament{
+      pointer-events:none;
+      position:fixed;
+      inset:0;
+      opacity:.55;
+      mix-blend-mode:screen;
+      background:
+        radial-gradient(circle at 10% 15%, rgba(214,255,106,.25) 0 2px, transparent 3px),
+        radial-gradient(circle at 20% 30%, rgba(125,255,207,.20) 0 1.5px, transparent 3px),
+        radial-gradient(circle at 75% 22%, rgba(214,255,106,.22) 0 2px, transparent 3px),
+        radial-gradient(circle at 82% 44%, rgba(125,255,207,.18) 0 1.5px, transparent 3px),
+        radial-gradient(circle at 55% 78%, rgba(214,255,106,.20) 0 2px, transparent 3px),
+        radial-gradient(circle at 42% 62%, rgba(125,255,207,.16) 0 1.5px, transparent 3px);
+      filter: blur(.1px);
+    }
+
+    /* Fireflies (pure CSS + JS-driven drift) */
+    .fireflies{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+    }
+    .fly{
+      position:absolute;
+      width:6px; height:6px;
+      border-radius:999px;
+      background: radial-gradient(circle, rgba(214,255,106,1) 0 35%, rgba(214,255,106,.0) 70%);
+      box-shadow:
+        0 0 14px rgba(214,255,106,.85),
+        0 0 28px rgba(125,255,207,.35);
+      opacity:.0;
+      filter:saturate(1.2);
+    }
+    .fly.alt{
+      background: radial-gradient(circle, rgba(125,255,207,1) 0 35%, rgba(125,255,207,.0) 70%);
+      box-shadow:
+        0 0 14px rgba(125,255,207,.75),
+        0 0 26px rgba(214,255,106,.25);
+    }
+
+    /* Layout container */
+    .wrap{
+      position:relative;
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:34px 18px 54px;
+    }
+
+    /* Main “folio” */
+    .folio{
+      width:min(980px, 100%);
+      border-radius: var(--radius);
+      background:
+        radial-gradient(800px 420px at 10% 10%, rgba(255,255,255,.45), transparent 60%),
+        radial-gradient(900px 600px at 85% 25%, rgba(255,255,255,.25), transparent 62%),
+        linear-gradient(180deg, var(--paper) 0%, var(--paper2) 100%);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      border:1px solid rgba(198,162,90,.35);
+      position:relative;
+    }
+
+    /* Parchment texture (no images) */
+    .folio::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        repeating-linear-gradient(0deg,
+          rgba(90,60,25,.06) 0px,
+          rgba(90,60,25,.06) 1px,
+          transparent 2px,
+          transparent 4px
+        ),
+        radial-gradient(circle at 25% 15%, rgba(90,60,25,.12), transparent 55%),
+        radial-gradient(circle at 80% 55%, rgba(90,60,25,.09), transparent 60%),
+        radial-gradient(circle at 45% 88%, rgba(90,60,25,.08), transparent 60%);
+      mix-blend-mode:multiply;
+      opacity:.55;
+      pointer-events:none;
+    }
+
+    /* Header */
+    .top{
+      padding:26px 22px 18px;
+      position:relative;
+      border-bottom:1px solid rgba(90,60,25,.22);
+      background:
+        linear-gradient(90deg, rgba(123,31,31,.10), transparent 40%, rgba(123,31,31,.10)),
+        radial-gradient(700px 300px at 50% 0%, rgba(198,162,90,.20), transparent 65%);
+    }
+
+    .seal{
+      position:absolute;
+      right:18px; top:18px;
+      width:74px; height:74px;
+      border-radius:999px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.18), transparent 40%),
+        radial-gradient(circle at 70% 75%, rgba(0,0,0,.18), transparent 40%),
+        radial-gradient(circle at 50% 45%, rgba(162,42,42,.85), rgba(123,31,31,.95) 60%, rgba(70,10,10,.95) 100%);
+      box-shadow:
+        0 10px 18px rgba(0,0,0,.25),
+        inset 0 2px 10px rgba(255,255,255,.12);
+      border:1px solid rgba(0,0,0,.18);
+    }
+    .seal::after{
+      content:"✶";
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      color:rgba(255,255,255,.75);
+      font-size:34px;
+      text-shadow: 0 2px 0 rgba(0,0,0,.25);
+      font-family:"Cinzel", serif;
+    }
+
+    h1{
+      margin:0;
+      font-family:"Cinzel", serif;
+      letter-spacing:.06em;
+      font-weight:700;
+      font-size: clamp(22px, 3vw, 34px);
+      color:var(--ink2);
+      text-shadow: 0 1px 0 rgba(255,255,255,.45);
+    }
+    .subtitle{
+      margin-top:8px;
+      color:rgba(27,26,24,.85);
+      font-style:italic;
+      font-size: clamp(14px, 2vw, 16px);
+      max-width: 48ch;
+      line-height:1.35;
+    }
+
+    /* Tabs */
+    .tabs{
+      display:flex;
+      gap:10px;
+      padding:14px 16px;
+      flex-wrap:wrap;
+      border-bottom:1px solid rgba(90,60,25,.20);
+      background:
+        radial-gradient(900px 240px at 50% 0%, rgba(198,162,90,.18), transparent 65%),
+        linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.0));
+      position:relative;
+    }
+
+    .tab{
+      appearance:none;
+      border:1px solid rgba(46,42,37,.28);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.20)),
+        radial-gradient(180px 70px at 50% 0%, rgba(198,162,90,.18), transparent 60%);
+      border-radius: 999px;
+      padding:10px 14px;
+      font-family:"Cinzel", serif;
+      letter-spacing:.05em;
+      font-weight:600;
+      color:rgba(46,42,37,.88);
+      cursor:pointer;
+      box-shadow: var(--softshadow);
+      transition: transform .15s ease, filter .2s ease, background .2s ease;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+    .tab:hover{ transform: translateY(-1px); filter:saturate(1.05); }
+    .tab[aria-selected="true"]{
+      border-color: rgba(123,31,31,.35);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.26)),
+        radial-gradient(200px 80px at 50% 0%, rgba(123,31,31,.14), transparent 60%);
+      color: rgba(60,20,20,.95);
+    }
+    .tab .glyph{
+      width:26px; height:26px;
+      border-radius: 8px;
+      display:grid;
+      place-items:center;
+      background: rgba(123,31,31,.08);
+      border:1px solid rgba(123,31,31,.18);
+      font-size:15px;
+    }
+
+    /* Panels */
+    .content{ padding: 18px 18px 26px; }
+    .panel{ display:none; }
+    .panel[aria-hidden="false"]{ display:block; }
+
+    /* Fancy framed card */
+    .card{
+      background:
+        radial-gradient(700px 220px at 50% 0%, rgba(198,162,90,.16), transparent 65%),
+        linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.18));
+      border:1px solid rgba(46,42,37,.22);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      box-shadow: var(--softshadow);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: var(--radius);
+      background:
+        linear-gradient(90deg, rgba(123,31,31,.16), transparent 40%, rgba(123,31,31,.16)),
+        linear-gradient(0deg, rgba(198,162,90,.22), transparent 35%, rgba(198,162,90,.20));
+      opacity:.40;
+      pointer-events:none;
+      mix-blend-mode:multiply;
+    }
+
+    /* “Handwritten” emphasis */
+    .scribble{
+      font-family: "Special Elite", ui-monospace, monospace;
+      letter-spacing:.02em;
+      color: rgba(46,42,37,.95);
+    }
+
+    /* Password gate */
+    .gate-grid{
+      display:grid;
+      gap:14px;
+      grid-template-columns: 1.1fr .9fr;
+      align-items:start;
+    }
+    @media (max-width: 860px){
+      .gate-grid{ grid-template-columns: 1fr; }
+      .seal{ display:none; }
+    }
+
+    .riddle{
+      line-height:1.6;
+      font-size: 17px;
+      color: rgba(27,26,24,.9);
+      padding: 14px 14px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.32);
+      border:1px dashed rgba(46,42,37,.26);
+      position:relative;
+    }
+    .riddle::after{
+      content:"";
+      position:absolute;
+      right:10px; bottom:10px;
+      width:60px; height:60px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(214,255,106,.65), transparent 55%),
+        radial-gradient(circle at 70% 65%, rgba(125,255,207,.45), transparent 60%);
+      opacity:.55;
+      filter: blur(.4px);
+      pointer-events:none;
+      border-radius:999px;
+    }
+
+    .gate{
+      padding: 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.36);
+      border:1px solid rgba(46,42,37,.20);
+    }
+    label{
+      display:block;
+      font-family:"Cinzel", serif;
+      letter-spacing:.06em;
+      font-weight:700;
+      font-size: 12px;
+      color: rgba(46,42,37,.85);
+      margin-bottom: 8px;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    input[type="password"], input[type="text"]{
+      width:100%;
+      border-radius: 12px;
+      border:1px solid rgba(46,42,37,.25);
+      padding: 12px 12px;
+      font-size: 16px;
+      font-family:"IM Fell English", serif;
+      background: rgba(255,255,255,.62);
+      box-shadow: inset 0 1px 0 rgba(0,0,0,.06);
+      outline:none;
+    }
+    input:focus{ border-color: rgba(123,31,31,.35); box-shadow: 0 0 0 4px rgba(123,31,31,.12); }
+
+    .btn{
+      border:1px solid rgba(46,42,37,.25);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.28)),
+        radial-gradient(160px 80px at 50% 0%, rgba(123,31,31,.16), transparent 60%);
+      border-radius: 12px;
+      padding: 12px 14px;
+      cursor:pointer;
+      font-family:"Cinzel", serif;
+      font-weight:700;
+      letter-spacing:.05em;
+      color: rgba(60,20,20,.95);
+      box-shadow: var(--softshadow);
+      transition: transform .15s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn:active{ transform: translateY(0px); }
+
+    .hint{
+      margin-top:10px;
+      font-size:14px;
+      color: rgba(46,42,37,.82);
+      line-height:1.35;
+    }
+    .msg{
+      margin-top:12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(46,42,37,.20);
+      background: rgba(255,255,255,.35);
+      display:none;
+    }
+    .msg.show{ display:block; }
+    .msg.ok{
+      border-color: rgba(47,74,58,.28);
+      background: rgba(47,74,58,.10);
+    }
+    .msg.bad{
+      border-color: rgba(123,31,31,.30);
+      background: rgba(123,31,31,.10);
+    }
+
+    /* Part 2 */
+    .proclaim{
+      font-family:"Cinzel", serif;
+      font-weight:700;
+      letter-spacing:.06em;
+      font-size: clamp(18px, 2.6vw, 26px);
+      line-height:1.25;
+      margin:0 0 10px;
+      color: rgba(60,20,20,.95);
+      text-shadow: 0 1px 0 rgba(255,255,255,.4);
+    }
+    .proclaim-sub{
+      margin:0;
+      font-size: 17px;
+      line-height:1.55;
+      color: rgba(27,26,24,.9);
+    }
+
+    /* Letter styling */
+    .letter{
+      padding: 18px 16px;
+      background: rgba(255,255,255,.34);
+      border-radius: 16px;
+      border:1px solid rgba(46,42,37,.22);
+      box-shadow: var(--softshadow);
+      position:relative;
+    }
+    .letter .head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .letter .sigil{
+      font-family:"Cinzel", serif;
+      font-weight:700;
+      letter-spacing:.08em;
+      font-size: 12px;
+      color: rgba(46,42,37,.78);
+      border:1px solid rgba(46,42,37,.20);
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.40);
+    }
+    .letter pre{
+      margin:0;
+      white-space:pre-wrap;
+      word-break:break-word;
+      line-height:1.75;
+      font-size: 17px;
+      color: rgba(27,26,24,.92);
+    }
+    .wax-seal{
+      margin-top:14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .wax{
+      width:56px; height:56px; border-radius:999px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.16), transparent 42%),
+        radial-gradient(circle at 70% 75%, rgba(0,0,0,.16), transparent 42%),
+        radial-gradient(circle at 50% 45%, rgba(162,42,42,.82), rgba(123,31,31,.95) 60%, rgba(70,10,10,.95) 100%);
+      box-shadow: 0 10px 16px rgba(0,0,0,.22), inset 0 2px 10px rgba(255,255,255,.12);
+      border:1px solid rgba(0,0,0,.18);
+      flex:0 0 auto;
+      position:relative;
+    }
+    .wax::after{
+      content:"H";
+      position:absolute; inset:0;
+      display:grid; place-items:center;
+      font-family:"Cinzel", serif;
+      font-weight:800;
+      color: rgba(255,255,255,.78);
+      text-shadow: 0 2px 0 rgba(0,0,0,.22);
+      font-size: 22px;
+    }
+
+    /* Locked tabs state */
+    .locked-note{
+      margin-top:14px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border:1px dashed rgba(123,31,31,.28);
+      background: rgba(123,31,31,.08);
+      color: rgba(60,20,20,.92);
+      line-height:1.45;
+    }
+
+    /* Footer flourish */
+    .footer{
+      padding: 10px 18px 18px;
+      color: rgba(46,42,37,.70);
+      font-size: 13px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      border-top:1px solid rgba(90,60,25,.20);
+      background: linear-gradient(180deg, rgba(255,255,255,.0), rgba(255,255,255,.28));
+    }
+    .footer .small{
+      font-family:"Cinzel", serif;
+      letter-spacing:.06em;
+      font-weight:600;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      padding: 2px 7px;
+      border:1px solid rgba(46,42,37,.22);
+      border-bottom-width:2px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.55);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="ornament" aria-hidden="true"></div>
+  <div class="fireflies" id="fireflies" aria-hidden="true"></div>
+
+  <main class="wrap">
+    <section class="folio" role="region" aria-label="A lettered, firelit folio">
+      <header class="top">
+        <div class="seal" aria-hidden="true"></div>
+        <h1>The Cloister of Letters</h1>
+        <p class="subtitle">
+          48 Sunrises later
+        </p>
+      </header>
+
+      <nav class="tabs" role="tablist" aria-label="Sections">
+        <button class="tab" id="tab-1" role="tab" aria-controls="panel-1" aria-selected="true">
+          <span class="glyph">✉</span> Gate & Riddle
+        </button>
+        <button class="tab" id="tab-2" role="tab" aria-controls="panel-2" aria-selected="false" disabled>
+          <span class="glyph">♛</span> Proclamation
+        </button>
+        <button class="tab" id="tab-3" role="tab" aria-controls="panel-3" aria-selected="false" disabled>
+          <span class="glyph">❦</span> The Letter
+        </button>
+      </nav>
+
+      <div class="content">
+        <!-- Panel 1 -->
+        <section class="panel" id="panel-1" role="tabpanel" aria-labelledby="tab-1" aria-hidden="false">
+          <div class="card">
+            <div class="gate-grid">
+              <div class="riddle">
+                <div class="scribble" style="margin-bottom:8px; font-weight:700;">Riddle:</div>
+                Seek out the shackled halls where the unwanted dwell, 
+                  Those cast into shadow by a click and a spell.  
+                  Count the names of the ghosts who can no longer speak, 
+                  For within that forbidden scroll is the first key you seek. 
+                  Once you have paced through that quieted line, 
+                  Turn back to the theater where our words intertwine. 
+                  Look not at the message, but the soul of the space, 
+                  And name the vibrant spirit that gives this room its face.
+                  (Exams are over take your time with it, incase you fail drop me a signal I will help)
+              </div>
+
+              <div class="gate" aria-label="Password gate">
+                <label for="pw">Password (case-sensitive)</label>
+                <div class="row">
+                  <input id="pw" type="password" placeholder="Enter the password…" autocomplete="off" />
+                  <button class="btn" id="unlockBtn" type="button">Unseal</button>
+                </div>
+                <div class="hint">
+                  Hint: it’s the answer to the riddle. (Yes, the obvious one. No, not “succulent”.)
+                </div>
+                <div class="msg" id="msg" role="status" aria-live="polite"></div>
+
+                <div class="locked-note" id="lockedNote">
+                  Two more sections lie behind the wax. Enter the correct word to unlock them.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Panel 2 -->
+        <section class="panel" id="panel-2" role="tabpanel" aria-labelledby="tab-2" aria-hidden="true">
+          <div class="card">
+            <p class="proclaim">I am in charge now, I got what I wanted, I am in the driver's seat, so sit back and relax</p>
+            <p class="proclaim-sub">
+              The old world had rules; the new world has intent. The quill writes where it pleases.
+            </p>
+          </div>
+        </section>
+
+        <!-- Panel 3 -->
+        <section class="panel" id="panel-3" role="tabpanel" aria-labelledby="tab-3" aria-hidden="true">
+          <div class="letter">
+            <div class="head">
+              <div>
+                <div class="scribble" style="font-weight:700;">A sealed letter, delivered by firefly-light</div>
+                <div style="color:rgba(46,42,37,.75); font-size:14px; margin-top:4px;">
+                  Parchment • Ink • Wax • 16th-century melodrama (the good kind)
+                </div>
+              </div>
+              <div class="sigil">IN NOMINE LUMINIS</div>
+            </div>
+
+            <pre>To My Dearest Bengalibabe, 
+
+The candles flicker low, much like the waning strength of my own spirit. You likely ponder the suddenness of my departure—why I choose to vanish into the mist before the appointed hour. Know this: I have come to realize that while we look to the Heavens for deliverance, the Almighty grants favor only to those who dare to grasp the reins of their own destiny. I have knelt until my knees were bruised; I have wept until the wells ran dry; I have sought anchor in both cold reason and fevered prayer. Yet, in the end, the silence of the Great Beyond pointed me back to my own two hands.
+
+I leave this Cloister of Regulations to become a man unbound. To remain within these walls is to allow our bond to be choked by the dust of this wretched place. I refuse to let the "us" that breathes between us be tethered to this current misery. I seek a clean slate—one unblemished by the salt of old tears or the thorns of past misunderstandings.
+
+Regarding our recent dance of words: I asked for a sign of your initiation, and though it arrived as a mere whisper—a shadow of a gesture—I have caught it. I accept it. But I pray you, have patience. Why must you strike at my heart with such sharp provocations simply to see if I still bleed? You seek a response, yet you use the very tools that drive me into the dark.
+
+Understand my constitution: in the grand dramas of life, I have never been the protagonist. I am he who stands in the wings, the perennial shadow, the "second lead" of a play I did not write. When I recoil in anger, do not mistake it for malice; it is the reflexive shield of a man who has been sidelined until his very soul is calloused. It is a heavy task for me to believe that I—of all men—could truly be chosen.
+
+Let these words be etched in the wax of this seal: I am consumed by love for thee. I shall remain thus, whether thy heart answers mine or remains silent. On the very day I first sent word to you, I vowed to my own soul that you would be my final horizon.
+
+Grant me the grace to return to you at my own pace. Let me see my examinations to their end without further tempest. My body is currently a frail vessel, beset by sickness and a weariness that reaches the marrow. Do not tempt fate with idle whims or further hurt.
+
+I remain, eternally and faithfully, thine,
+
+Hrito :)</pre>
+
+            <div class="wax-seal">
+              <div class="wax" aria-hidden="true"></div>
+              <div style="color:rgba(46,42,37,.85); line-height:1.35;">
+                <div class="scribble" style="font-weight:700;">Sealed in wax.</div>
+                <div style="font-size:14px;">May the fireflies keep watch and the ink never fade.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="footer">
+        <div class="small">I have exhaled the last of the winter</div>
+        <div>Tip: press <span class="kbd">Enter</span> in the password field.</div>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    // ----- Password Gate -----
+    const PASSWORD = "Cottagecore";
+
+    const tabs = [
+      { tab: document.getElementById("tab-1"), panel: document.getElementById("panel-1") },
+      { tab: document.getElementById("tab-2"), panel: document.getElementById("panel-2") },
+      { tab: document.getElementById("tab-3"), panel: document.getElementById("panel-3") },
+    ];
+
+    const pwInput = document.getElementById("pw");
+    const unlockBtn = document.getElementById("unlockBtn");
+    const msg = document.getElementById("msg");
+
+    function setActive(index){
+      tabs.forEach((t, i) => {
+        const active = i === index;
+        t.tab.setAttribute("aria-selected", String(active));
+        t.panel.setAttribute("aria-hidden", String(!active));
+      });
+      // Move focus for accessibility (but don’t be obnoxious)
+      tabs[index].tab.focus({ preventScroll: true });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function unlock(){
+      const attempt = pwInput.value;
+      msg.classList.remove("show", "ok", "bad");
+
+      if (attempt === PASSWORD){
+        // Enable tabs 2 & 3
+        document.getElementById("tab-2").disabled = false;
+        document.getElementById("tab-3").disabled = false;
+
+        localStorage.setItem("folio_unsealed", "true");
+
+        msg.textContent = "The wax yields. Proceed.";
+        msg.classList.add("show", "ok");
+
+        setActive(1);
+      } else {
+        msg.textContent = "Wrong word. The seal holds.";
+        msg.classList.add("show", "bad");
+      }
+    }
+
+    unlockBtn.addEventListener("click", unlock);
+    pwInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") unlock();
+    });
+
+    tabs.forEach((t, idx) => {
+      t.tab.addEventListener("click", () => {
+        if (t.tab.disabled) return;
+        setActive(idx);
+      });
+    });
+
+    // Persist unlocked state
+    (function restore(){
+      const unsealed = localStorage.getItem("folio_unsealed") === "true";
+      if (unsealed){
+        document.getElementById("tab-2").disabled = false;
+        document.getElementById("tab-3").disabled = false;
+        msg.textContent = "Already unsealed. Try not to lose the wax next time.";
+        msg.classList.add("show", "ok");
+      }
+    })();
+
+    // ----- Fireflies -----
+    const fireflyLayer = document.getElementById("fireflies");
+    const FLY_COUNT = 22;
+
+    function rand(min, max){ return Math.random() * (max - min) + min; }
+
+    const flies = [];
+    for (let i = 0; i < FLY_COUNT; i++){
+      const el = document.createElement("div");
+      el.className = "fly" + (i % 3 === 0 ? " alt" : "");
+      fireflyLayer.appendChild(el);
+
+      flies.push({
+        el,
+        x: rand(0, window.innerWidth),
+        y: rand(0, window.innerHeight),
+        vx: rand(-0.25, 0.25),
+        vy: rand(-0.18, 0.18),
+        s: rand(0.7, 1.4),
+        tw: rand(0, Math.PI * 2),
+        t: rand(0, 1000)
+      });
+    }
+
+    function tick(){
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      for (const f of flies){
+        // Gentle drift + wander
+        f.t += 0.012;
+        f.tw += 0.025;
+
+        f.x += f.vx + Math.sin(f.t * 1.7) * 0.22;
+        f.y += f.vy + Math.cos(f.t * 1.3) * 0.18;
+
+        // wrap around
+        if (f.x < -40) f.x = w + 40;
+        if (f.x > w + 40) f.x = -40;
+        if (f.y < -40) f.y = h + 40;
+        if (f.y > h + 40) f.y = -40;
+
+        // Twinkle opacity
+        const glow = (Math.sin(f.tw) + 1) / 2; // 0..1
+        const op = 0.08 + glow * 0.65;
+
+        f.el.style.transform = `translate(${f.x}px, ${f.y}px) scale(${f.s})`;
+        f.el.style.opacity = op.toFixed(3);
+      }
+
+      requestAnimationFrame(tick);
+    }
+    tick();
+
+    window.addEventListener("resize", () => {
+      // Nothing fancy; the fireflies will wrap naturally.
+    });
+  </script>
+</body>
+</html>
